@@ -1,9 +1,9 @@
-markdown
 # Handyman Website
 
 Welcome to the Handyman Website repository! This project is built with React and Vite for the frontend, and a Node.js server with Express for the backend. The website offers various handyman services for users in Lakeland, FL.
 
 ## Table of Contents
+
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [Dependencies](#dependencies)
@@ -17,37 +17,46 @@ Welcome to the Handyman Website repository! This project is built with React and
 
 To run this website locally, follow these steps:
 
-1. **Clone the repository:**
-   ```bash
-   git clone <GitHub_repository_URL>
-Change directory to the backend:
+1.  Clone the repository:
+    ```bash
+    git clone <GitHub_repository_URL>
+    ```
 
-bash
-cd backend
-Install backend dependencies:
+2.  Change directory to the backend:
+    ```bash
+    cd backend
+    ```
 
-bash
-npm install
-Start the server:
+3.  Install backend dependencies:
+    ```bash
+    npm install
+    ```
 
-bash
-node server.cjs
-Open a new terminal and change directory to the frontend:
+4.  Start the server:
+    ```bash
+    node server.cjs
+    ```
 
-bash
-cd ../src
-Install frontend dependencies:
+5.  Open a new terminal and change directory to the frontend:
+    ```bash
+    cd ../src
+    ```
 
-bash
-npm install
-Start the frontend server:
+6.  Install frontend dependencies:
+    ```bash
+    npm install
+    ```
 
-bash
-npm run dev
-This will open the website in your default browser at http://localhost:3000.
+7.  Start the frontend server:
+    ```bash
+    npm run dev
+    ```
 
-Project Structure
-plaintext
+This will open the website in your default browser at `http://localhost:3000`.
+
+## Project Structure
+
+```plaintext
 handyman3/
 ├── backend/
 │   ├── controllers/
