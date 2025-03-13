@@ -137,12 +137,162 @@ app.get('/api/handy_services', async (req, res) => {
     }
 });
 
-// Serve static assets (e.g., your React build)
-app.use(express.static(path.join(__dirname, '../dist'))); // Adjust the path if needed
+app.get('/api/current_user', authenticateToken, (req, res) => {
+    try {
+        const user = req.user; // Assuming authenticateToken middleware sets req.user
+        res.json({ user });
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
-// Catch-all route to serve index.html for React Router
+// Middleware to authenticate token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
+
+app.get('/api/account', authenticateToken, (req, res) => {
+    try {
+        const user = req.user; // Assuming authenticateToken middleware sets req.user
+        res.json({ user });
+    } catch (error) {
+        console.error('Error fetching account details:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Middleware to authenticate token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
+
+/**
+ * POST /api/login
+ * Handles user login by checking credentials.
+ */
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    try {
+        const result = await pool.query('SELECT * FROM users WHERE email = $1 AND password = $2', [email, password]);
+        if (result.rows.length > 0) {
+            res.json({ success: true, user: result.rows[0] });
+        } else {
+            res.status(401).json({ error: 'Invalid credentials' });
+        }
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+/**
+ * POST /api/signup
+ * Handles user registration by adding new user to the database.
+ */
+app.post('/api/signup', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    try {
+        const result = await pool.query('INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *', [email, password]);
+        res.json({ success: true, user: result.rows[0] });
+    } catch (error) {
+        console.error('Error during signup:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+/**
+ * POST /api/contact
+ * Handles contact form submissions.
+ */
+app.post('/api/contact', async (req, res) => {
+    try {
+        const { name, email, message } = req.body;
+        // Implement your form submission logic here, e.g., save to database or send email
+
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Error handling form submission:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+
+// Post routes for current user updates.
+app.post('/api/current_user/update_profile', authenticateToken, async (req, res) => {
+    try {
+        const { username, email, phone, address } = req.body;
+        const userId = req.user.id; // Assuming your token contains the user ID
+
+        // Update the user's profile in the database
+        const result = await pool.query(
+            'UPDATE users SET username = $1, email = $2, phone = $3, address = $4 WHERE id = $5 RETURNING *',
+            [username, email, phone, address, userId]
+        );
+
+        if (result.rows.length > 0) {
+            res.json({ success: true, user: result.rows[0] });
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.post('/api/current_user/update_password', authenticateToken, async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        const userId = req.user.id;
+
+        // Verify the old password
+        const userResult = await pool.query('SELECT password FROM users WHERE id = $1', [userId]);
+        if (userResult.rows.length === 0 || userResult.rows[0].password !== oldPassword) {
+            return res.status(401).json({ error: 'Invalid old password' });
+        }
+
+        // Update the password
+        await pool.query('UPDATE users SET password = $1 WHERE id = $2', [newPassword, userId]);
+
+        res.json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+        console.error('Error updating password:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Serve static assets
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Catch-all route
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist', 'index.html')); // Adjust the path if needed
+    res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
 // Start the server
