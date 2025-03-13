@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
-import HomePage from './HomePage';
+import HomePage from './components/HomePage';
 
 // Mock the image import
 jest.mock('./BB handyman.jpg', () => 'handymanLogo');

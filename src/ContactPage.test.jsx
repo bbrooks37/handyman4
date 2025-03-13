@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import ContactPage from './ContactPage';
+import ContactPage from './components/ContactPage';
 
 /**
  * Test suite for the ContactPage component.

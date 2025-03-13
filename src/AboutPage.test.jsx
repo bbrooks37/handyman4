@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom'; // Ensure this import is correct
-import AboutPage from './AboutPage';
+import AboutPage from './components/AboutPage';
 
 /**
  * Test suite for the AboutPage component.

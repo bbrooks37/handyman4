@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Slideshow from './Slideshow';
+import Slideshow from './components/Slideshow';
 
 /**
  * Test suite for the Slideshow component.

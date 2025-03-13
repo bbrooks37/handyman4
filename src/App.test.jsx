@@ -3,22 +3,20 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import App from './App';
-import HomePage from './HomePage';
-import AboutPage from './AboutPage';
-import ContactPage from './ContactPage';
-import ServicePage from './ServicePage';
-import Signup from './Signup';
-import Login from './Login';
-import Account from './Account';
-import { auth } from './firebase';
+import HomePage from './components/HomePage';
+import AboutPage from './components/AboutPage';
+import ContactPage from './components/ContactPage';
+import ServicePage from './components/ServicePage';
+import Signup from './components/Signup';
+import Login from './components/Login';
+import Account from './components/Account';
+import jwtDecode from 'jwt-decode';
 
-// Mock the Firebase auth module
-jest.mock('./firebase', () => ({
-    auth: {
-        onAuthStateChanged: jest.fn(),
-        signOut: jest.fn()
-    }
-}));
+// Mock the jwtDecode function and localStorage
+jest.mock('jwt-decode', () => jest.fn());
+jest.spyOn(window.localStorage.__proto__, 'getItem');
+jest.spyOn(window.localStorage.__proto__, 'setItem');
+jest.spyOn(window.localStorage.__proto__, 'removeItem');
 
 /**
  * Test suite for the App component.
@@ -107,7 +105,8 @@ describe('App', () => {
      * Test case to check if the account page renders correctly when logged in.
      */
     it('renders the account page when logged in', async () => {
-        auth.onAuthStateChanged.mockImplementation((callback) => callback({ uid: '123' }));
+        localStorage.getItem.mockReturnValue('mockToken');
+        jwtDecode.mockReturnValue({ uid: '123' });
         render(<App />);
         fireEvent.click(screen.getByText(/account/i));
         await waitFor(() => {
@@ -119,11 +118,12 @@ describe('App', () => {
      * Test case to check if logout works correctly.
      */
     it('logs out the user when logout button is clicked', async () => {
-        auth.onAuthStateChanged.mockImplementation((callback) => callback({ uid: '123' }));
+        localStorage.getItem.mockReturnValue('mockToken');
+        jwtDecode.mockReturnValue({ uid: '123' });
         render(<App />);
         fireEvent.click(screen.getByText(/logout/i));
         await waitFor(() => {
-            expect(auth.signOut).toHaveBeenCalled();
+            expect(localStorage.removeItem).toHaveBeenCalledWith('jwtToken');
         });
     });
 });
